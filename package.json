@@ -1,0 +1,45 @@
+{
+  "name": "dsh-migloop",
+  "version": "0.1.0",
+  "description": "View and analyse DeepSeek Harness session trajectories with MigLoop: /migloop renders the current or a past Session (sub-agents included) as the MigLoop report, and can serve MigLoop's interactive pages",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib",
+    "cordis.patch.yml",
+    "vendor/README.md",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "engines": {
+    "node": ">=24.9.0",
+    "dsh": ">=0.2.2-rc.1 <0.3.0"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/schemastery": "~3.19.0"
+  },
+  "devDependencies": {
+    "@deepseek-ai/schemastery": "~3.19.0"
+  },
+  "scripts": {
+    "build:migloop": "node scripts/build-migloop.mjs",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "migloop",
+    "trajectory",
+    "session"
+  ],
+  "license": "MIT"
+}

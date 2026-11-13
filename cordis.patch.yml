@@ -1,0 +1,6 @@
+# dsh-migloop bundle patch: mounts the /migloop human command (and, on Web, the
+# authenticated report route). Requires the `commands` service that dsh-base
+# provides; Session lookup uses `sessionPersistence` from the same base bundle.
+- insert:
+    - id: dsh-migloop
+      name: 'dsh-migloop'
