@@ -14,7 +14,7 @@ DeepSeek Harness（dsh）插件：在 dsh 里用 MigLoop 的界面看、分析�
 | Node.js | 随 dsh（`>=24.9`） |
 | pnpm | `dsh plugin` 用它装插件，需在 PATH 上 |
 | Python | 3.9+ 生成报告；`/migloop serve` 需要 3.11+。不需要第三方包 |
-| MigLoop | 带 dsh adapter 的版本（fuxi-ailabs/migloop 分支 `feat/dsh-adapter`），打成 `vendor/migloop-lineage.pyz` |
+| MigLoop | 带 dsh adapter 的版本（[hxy450/migloop](https://github.com/hxy450/migloop/tree/feat/dsh-adapter) 分支 `feat/dsh-adapter`），打成 `vendor/migloop-lineage.pyz` |
 
 dsh 默认把会话日志压成 Zstandard。MigLoop 读它时依次用 Python 3.14 的 `compression.zstd`、`zstandard` 包、PATH 上的 `node`；装了 dsh 就有 node，所以通常不用另装东西。
 

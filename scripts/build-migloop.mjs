@@ -1,5 +1,5 @@
 // Build vendor/migloop-lineage.pyz from a MigLoop checkout that has the dsh adapter
-// (fuxi-ailabs/migloop, branch feat/dsh-adapter until it is merged).
+// (https://github.com/hxy450/migloop, branch feat/dsh-adapter until it is merged).
 //
 //   node scripts/build-migloop.mjs [<migloop checkout>]      (default: $MIGLOOP_SRC, else ../_migloop-dsh-1113)
 import { spawnSync } from 'node:child_process'
