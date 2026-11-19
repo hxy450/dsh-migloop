@@ -43,6 +43,19 @@ dsh --profile web --dump-config | grep dsh-migloop   # 能看到 "# == dsh-miglo
 
 这些都是 dsh 的人类命令：不进模型上下文、不花 token。当前会话的最后几秒可能还没落盘（dsh 按批写日志，默认 5 秒一批）。
 
+## 离线文件入口
+
+已导出的原生轨迹也可直接传入，无需导入当前 DSH profile 的 sessionPersistence：
+
+```sh
+/migloop --file "/absolute/offline sessions/native.jsonl"
+/migloop serve --file "/absolute/session.v4.jsonl" --sessions-root "/absolute/dsh/sessions"
+```
+
+报告和服务复用现有 python、migloopPyz 配置及 MigLoop 原生解析器。非 DSH 格式由所配置 MigLoop 版本的对应解析器处理，不转换或伪造为 DSH 事件。路径必须是明确选择的现有绝对路径；DSH 子会话不在默认布局时应显式指定 sessions-root。同名文件以绝对路径摘要区分服务身份。原有会话 ID、list、serve 和 stop 用法保持。
+
+命令支持带引号的空格路径，未闭合引号返回命令错误。此入口不下载运行包、不调用模型；仍按上文构建或配置 MigLoop zipapp。
+
 ## 配置
 
 在 profile 的 `cordis.patch.yml` 里覆盖（整段 config 会被替换，保留要用的字段）：

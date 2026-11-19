@@ -14,6 +14,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import Schema from '@deepseek-ai/schemastery'
 import { pythonCommand, runPython, startServer, stopServer } from './lib/python.js'
 import { listRootSessions, locateSession, targetOf } from './lib/sessions.js'
+import { offlineTarget, commandTokens } from './lib/offline.js'
 
 export const name = 'dsh-migloop'
 export const inject = ['commands']
@@ -51,11 +52,10 @@ function webUrl(path) {
 }
 
 async function report(ctx, s, tokens, invocation) {
-  const target = targetOf(tokens, invocation)
-  const session = await locateSession(ctx.get('sessionPersistence'), target)
+  const session = offlineTarget(tokens) || await locateSession(ctx.get('sessionPersistence'), targetOf(tokens, invocation))
   if (!existsSync(s.pyz)) throw new Error(`MigLoop zipapp not found: ${s.pyz} (npm run build:migloop, or set migloopPyz)`)
   mkdirSync(s.outDir, { recursive: true })
-  const short = session.id.replace(/^session-/, '').slice(0, 8)
+  const short = session.offline ? session.id.slice(-12) : session.id.replace(/^session-/, '').slice(0, 8)
   const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..*/, '')
   const out = join(s.outDir, `migloop-${short}-${stamp}.html`)
   const run = await runPython(s.python, [s.pyz, session.path, '-o', out],
@@ -74,8 +74,7 @@ async function report(ctx, s, tokens, invocation) {
 }
 
 async function serve(ctx, s, servers, tokens, invocation) {
-  const target = targetOf(tokens, invocation)
-  const session = await locateSession(ctx.get('sessionPersistence'), target)
+  const session = offlineTarget(tokens) || await locateSession(ctx.get('sessionPersistence'), targetOf(tokens, invocation))
   if (!existsSync(s.pyz)) throw new Error(`MigLoop zipapp not found: ${s.pyz}`)
   const running = servers.get(session.id)
   if (running && running.child.exitCode === null) return `已在运行：\n${running.urls.join('\n')}`
@@ -127,11 +126,11 @@ export function apply(ctx, config = {}) {
     description: 'MigLoop trajectory report / server for this or a past Session (list | serve | stop)',
     input: { hint: '[list | serve | stop] [session id or prefix]' },
     handler: async (invocation) => {
-      const tokens = invocation.rawInput.trim().split(/\s+/).filter(Boolean)
-      const verb = ['list', 'serve', 'stop', 'report', 'help'].includes(tokens[0]) ? tokens.shift() : 'report'
       try {
+        const tokens = commandTokens(invocation.rawInput)
+        const verb = ['list', 'serve', 'stop', 'report', 'help'].includes(tokens[0]) ? tokens.shift() : 'report'
         if (verb === 'help') {
-          return { kind: 'success', text: '/migloop [会话] 生成报告；/migloop serve [会话] 起本机服务；/migloop stop；/migloop list' }
+          return { kind: 'success', text: '/migloop --file "/absolute/native-session.jsonl" [--sessions-root DIR]：离线原生轨迹；/migloop serve --file FILE：本机服务；/migloop [会话]；/migloop stop；/migloop list。离线入口复用已配置的 MigLoop zipapp。' }
         }
         const text = verb === 'list' ? await list(ctx)
           : verb === 'serve' ? await serve(ctx, s, servers, tokens, invocation)
